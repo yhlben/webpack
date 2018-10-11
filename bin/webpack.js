@@ -3,9 +3,9 @@
 process.exitCode = 0;
 
 /**
- * @param {string} command process to run
- * @param {string[]} args commandline arguments
- * @returns {Promise<void>} promise
+ * @param {string} command 命令行语句
+ * @param {string[]} args 命令行参数
+ * @returns {Promise<void>} 返回一个Promise
  */
 const runCommand = (command, args) => {
 	const cp = require("child_process");
@@ -30,13 +30,13 @@ const runCommand = (command, args) => {
 };
 
 /**
- * @param {string} packageName name of the package
- * @returns {boolean} is the package installed?
+ * @param {string} packageName 包名
+ * @returns {boolean} 是否已安装？
  */
 const isInstalled = packageName => {
 	try {
+		// 尝试获取包的绝对路径，如果没获取到，标识没有安装这个包
 		require.resolve(packageName);
-
 		return true;
 	} catch (err) {
 		return false;
@@ -79,17 +79,21 @@ const CLIs = [
 	}
 ];
 
+// 获取安装的webpack-cli，或者webpack-command
 const installedClis = CLIs.filter(cli => cli.installed);
 
+// 如果即没有安装webpack-cli 也没有安装webpack-command
 if (installedClis.length === 0) {
 	const path = require("path");
 	const fs = require("fs");
+	// readline 是node源生库
 	const readLine = require("readline");
 
 	let notify =
 		"One CLI for webpack must be installed. These are recommended choices, delivered as separate packages:";
 
 	for (const item of CLIs) {
+		// 打印推荐的包，这里是webpack-cli
 		if (item.recommended) {
 			notify += `\n - ${item.name} (${item.url})\n   ${item.description}`;
 		}
@@ -137,8 +141,10 @@ if (installedClis.length === 0) {
 			)} ${packageName}')...`
 		);
 
+		// 安装webpack-cli
 		runCommand(packageManager, installOptions.concat(packageName))
 			.then(() => {
+				// 安装完毕，立即执行
 				require(packageName); //eslint-disable-line
 			})
 			.catch(error => {
@@ -146,7 +152,9 @@ if (installedClis.length === 0) {
 				process.exitCode = 1;
 			});
 	});
-} else if (installedClis.length === 1) {
+}
+// 如果安装了webpack-cli 或者是webpack-command其中之一
+else if (installedClis.length === 1) {
 	const path = require("path");
 	const pkgPath = require.resolve(`${installedClis[0].package}/package.json`);
 	// eslint-disable-next-line node/no-missing-require
