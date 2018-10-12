@@ -160,11 +160,14 @@ else if (installedClis.length === 1) {
 	// eslint-disable-next-line node/no-missing-require
 	const pkg = require(pkgPath);
 	// eslint-disable-next-line node/no-missing-require
+	// 引入webpack-cli bin目录的启动文件，这是一个自执行文件，引用时就会执行。
 	require(path.resolve(
 		path.dirname(pkgPath),
 		pkg.bin[installedClis[0].binName]
 	));
-} else {
+}
+// 只能安装一个，不然报错
+else {
 	console.warn(
 		`You have installed ${installedClis
 			.map(item => item.name)
